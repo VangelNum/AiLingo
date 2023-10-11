@@ -15,7 +15,7 @@ external object VoiceToText {
     fun stopListening()
 }
 
-actual class VoiceToTextParser actual constructor() {
+actual class VoiceToTextParser {
     actual fun startListening() {
         VoiceToText.startListening()
     }

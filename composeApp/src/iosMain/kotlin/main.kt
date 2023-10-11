@@ -9,4 +9,4 @@ fun MainViewController(): UIViewController = ComposeUIViewController(
         //Analog of Android Manifest activity.windowSoftInputMode="adjustNothing"
         onFocusBehavior = OnFocusBehavior.DoNothing
     }
-) { App(state) }
+) { App() }

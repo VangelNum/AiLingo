@@ -1,5 +1,7 @@
 package org.vangelnum.chatapplication
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
 import java.awt.Desktop
 import java.net.URI
 
@@ -14,4 +16,10 @@ actual class VoiceToTextParser {
 
     actual fun stopListening() {
     }
+}
+
+@Preview
+@Composable
+fun preview() {
+    App()
 }
