@@ -10,23 +10,27 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+
 actual class VoiceToTextParser : RecognitionListener {
     private val application: Application
         get() {
             return AndroidApp.INSTANCE
         }
-    private val _state = MutableStateFlow(VoiceToTextParserState())
-    val state = _state.asStateFlow()
+
+    private val _voiceState = MutableStateFlow(VoiceStates())
+    actual val voiceState = _voiceState.asStateFlow()
+
     private val recognizer: SpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(application)
 
     actual fun startListening() {
-        _state.update {
-            VoiceToTextParserState()
+        _voiceState.update {
+            VoiceStates(isSpeaking = true)
         }
-        if (SpeechRecognizer.isRecognitionAvailable(application)) {
-            _state.update {
-                it.copy(error = "Recognition is not avialiable")
+        if (!SpeechRecognizer.isRecognitionAvailable(application)) {
+            _voiceState.update {
+                it.copy(error = "Recognition is not available")
             }
+            return
         }
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -34,27 +38,23 @@ actual class VoiceToTextParser : RecognitionListener {
         }
         recognizer.setRecognitionListener(this)
         recognizer.startListening(intent)
-        _state.update {
-            it.copy(isSpeaking = true)
-        }
     }
 
     actual fun stopListening() {
-        _state.update {
+        _voiceState.update {
             it.copy(isSpeaking = false)
         }
         recognizer.stopListening()
     }
 
     override fun onReadyForSpeech(params: Bundle?) {
-        _state.update {
+        _voiceState.update {
             it.copy(error = null)
         }
     }
 
     override fun onBeginningOfSpeech() {
-        _state.update {
-            isSpeaking = true
+        _voiceState.update {
             it.copy(isSpeaking = true)
         }
     }
@@ -64,8 +64,7 @@ actual class VoiceToTextParser : RecognitionListener {
     override fun onBufferReceived(buffer: ByteArray?) = Unit
 
     override fun onEndOfSpeech() {
-        _state.update {
-            isSpeaking = false
+        _voiceState.update {
             it.copy(isSpeaking = false)
         }
     }
@@ -74,15 +73,14 @@ actual class VoiceToTextParser : RecognitionListener {
         if (error == SpeechRecognizer.ERROR_CLIENT) {
             return
         }
-        _state.update {
+        _voiceState.update {
             it.copy(error = "Error: $error")
         }
     }
 
     override fun onResults(results: Bundle?) {
         results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.getOrNull(0)?.let { result ->
-            _state.update {
-                lastText = result
+            _voiceState.update {
                 it.copy(spokenText = result)
             }
         }
@@ -91,16 +89,5 @@ actual class VoiceToTextParser : RecognitionListener {
     override fun onPartialResults(partialResults: Bundle?) = Unit
 
     override fun onEvent(eventType: Int, params: Bundle?) = Unit
-    actual var lastText: String
-        get() {
-            return state.value.spokenText
-        }
-        set(value) {
 
-        }
-    actual var isSpeaking: Boolean
-        get()  {
-            return state.value.isSpeaking
-        }
-        set(value) {}
 }

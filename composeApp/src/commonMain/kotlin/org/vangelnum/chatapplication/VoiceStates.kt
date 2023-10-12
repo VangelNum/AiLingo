@@ -1,6 +1,6 @@
 package org.vangelnum.chatapplication
 
-data class VoiceToTextParserState(
+data class VoiceStates(
     var spokenText: String = "",
     val isSpeaking: Boolean = false,
     val error: String? = null

@@ -1,8 +1,9 @@
 package org.vangelnum.chatapplication
 
-expect class VoiceToTextParser {
-    var lastText: String
-    var isSpeaking: Boolean
+import kotlinx.coroutines.flow.StateFlow
+
+expect class VoiceToTextParser() {
+    val voiceState: StateFlow<VoiceStates>
     fun startListening()
     fun stopListening()
 }
