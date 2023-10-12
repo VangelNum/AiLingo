@@ -8,7 +8,7 @@ internal actual fun openUrl(url: String?) {
     url?.let { window.open(it) }
 }
 
-@JsModule("C:\\Users\\vangel\\AndroidStudioProjects\\chat_application\\composeApp\\src\\jsMain\\resources\\voiceToText.js")
+@JsModule("./voiceToText.js")
 @JsNonModule
 external object VoiceToText {
     fun startListening()
